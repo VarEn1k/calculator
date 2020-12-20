@@ -15,10 +15,18 @@
 </head>
 <body>
 
-<div id="myClac">
+<div id="myCalc">
     <p>Addition</p>
     <p><label for="calc-x-input">X</label><input id="calc-x-input" value="0" onkeyup="handleXCalcEvent()"></p>
-    <p>+</p>
+    <p>
+        <label for="calc-operation">Select operation</label>
+        <select id="calc-operation" onchange="handleOperationEvent()">
+            <option value="PLUS" label="+"></option>
+            <option value="SUBTRACT" label="-"></option>
+            <option value="MULTIPLY" label="*"></option>
+            <option value="DIVIDE" label="/"></option>
+        </select>
+    </p>
     <p><label for="calc-y-input">Y</label><input id="calc-y-input" value="0" onkeyup="handleYCalcEvent()"></p>
     <p>--------------------</p>
     <p>= <span id="calc-result"></span></p>
@@ -26,29 +34,40 @@
 
 <script type="text/javascript">
     let calculator
-     //evaluates only once after loading web page
+    // evaluates only once after loading web page
     window.onload = function () {
-      const xElement = document.getElementById("calc-x-input")
+        // User Interface fields
+        const xElement = document.getElementById("calc-x-input")
         const yElement = document.getElementById("calc-y-input")
         const resultElement = document.getElementById("calc-result")
-        calculator = new Calc(xElement, yElement, resultElement)
+        const selectedOperation = document.getElementById("calc-operation")
+        // Create calculator object
+        calculator = new Calc(xElement, yElement, resultElement, selectedOperation)
         calculator.updateX()
         calculator.updateY()
     }
+    // On change X field value
     function handleXCalcEvent() {
         calculator.updateX()
     }
+    // On change Y filed value
     function handleYCalcEvent() {
         calculator.updateY()
     }
+    // On update
+    function handleOperationEvent() {
+        calculator.render()
+    }
 
-    function Calc(xInput, yInput, output) {
+    function Calc(xInput, yInput, output, operationList) {
         this.xInput = xInput
         this.yInput = yInput
         this.output = output
+        this.operationList = operationList
         this.xValue = 0
         this.yValue = 0
         this.result = 0
+        // parse X field value
         this.updateX = function () {
             let number = parseFloat(this.xInput.value)
             if (isNaN(number) || !isFinite(number)) {
@@ -57,16 +76,30 @@
             this.xValue = number
             this.render()
         }
-            this.updateY = function () {
-                let number = parseFloat(this.yInput.value)
-                if (isNaN(number) || !isFinite(number)) {
-
-                }
+        // parse Y field value
+        this.updateY = function () {
+            let number = parseFloat(this.yInput.value)
+            if (isNaN(number) || !isFinite(number)) {
+                return
+            }
             this.yValue = number
             this.render()
+        }
+        // define result
+        this.render = function () {
+            const operation = this.operationList.value
+            switch (operation) {
+                case 'PLUS': this.result = this.xValue + this.yValue
+                    break
+                case 'MULTIPLY': this.result = this.xValue * this.yValue
+                    break
+                case 'SUBTRACT': this.result = this.xValue - this.yValue
+                    break
+                case 'DIVIDE': this.result = this.xValue / this.yValue
+                    break
+                default: this.result = 'UNKNOWN OPERATION'
             }
-            this.render = function () {
-            this.result = this.xValue + this.yValue
+
             this.output.innerText = this.result
         }
     }
